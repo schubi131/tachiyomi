@@ -25,6 +25,7 @@ import eu.kanade.tachiyomi.ui.manga.info.MangaInfoPresenter
 import eu.kanade.tachiyomi.ui.manga.myanimelist.MyAnimeListPresenter
 import eu.kanade.tachiyomi.ui.reader.ReaderPresenter
 import eu.kanade.tachiyomi.ui.recent.RecentChaptersPresenter
+import eu.kanade.tachiyomi.ui.setting.AnilistLoginActivity
 import eu.kanade.tachiyomi.ui.setting.SettingsActivity
 import javax.inject.Singleton
 
@@ -46,6 +47,7 @@ interface AppComponent {
 
     fun inject(mainActivity: MainActivity)
     fun inject(settingsActivity: SettingsActivity)
+    fun inject(anilistLoginActivity: AnilistLoginActivity)
 
     fun inject(source: Source)
     fun inject(mangaSyncService: MangaSyncService)
