@@ -245,20 +245,20 @@ class ReaderActivity : BaseRxActivity<ReaderPresenter>() {
 
     fun onChapterReady(manga: Manga, chapter: Chapter, currentPage: Page?) {
         please_wait.visibility = View.GONE
-        val activePage = currentPage ?: chapter.pages.last()
+        val activePage = currentPage ?: chapter.pages!!.last()
 
         viewer?.onPageListReady(chapter, activePage)
         setActiveChapter(chapter, activePage.pageNumber)
     }
 
     fun onEnterChapter(chapter: Chapter, currentPage: Int) {
-        val activePage = if (currentPage == -1) chapter.pages.lastIndex else currentPage
+        val activePage = if (currentPage == -1) chapter.pages!!.lastIndex else currentPage
         presenter.setActiveChapter(chapter)
         setActiveChapter(chapter, activePage)
     }
 
     fun setActiveChapter(chapter: Chapter, currentPage: Int) {
-        val numPages = chapter.pages.size
+        val numPages = chapter.pages!!.size
         if (page_seekbar.rotation != 180f) {
             right_page_text.text = "$numPages"
             left_page_text.text = "${currentPage + 1}"
@@ -324,7 +324,7 @@ class ReaderActivity : BaseRxActivity<ReaderPresenter>() {
         viewer?.let {
             val activePage = it.getActivePage()
             if (activePage != null) {
-                val requestedPage = activePage.chapter.pages[pageIndex]
+                val requestedPage = activePage.chapter.pages!![pageIndex]
                 it.setActivePage(requestedPage)
             }
 

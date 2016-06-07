@@ -71,7 +71,7 @@ class Mangahere(context: Context, override val id: Int) : ParsedOnlineSource(con
     override fun chapterFromElement(element: Element, chapter: Chapter) {
         val urlElement = element.select("a").first()
 
-        chapter.setUrl(urlElement.attr("href"))
+        chapter.setUrlWithoutDomain(urlElement.attr("href"))
         chapter.name = urlElement.text()
         chapter.date_upload = element.select("span.right").first()?.text()?.let { parseChapterDate(it) } ?: 0
     }

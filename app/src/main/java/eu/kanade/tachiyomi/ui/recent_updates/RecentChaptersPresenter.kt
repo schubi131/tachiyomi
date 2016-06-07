@@ -94,7 +94,7 @@ class RecentChaptersPresenter : BasePresenter<RecentChaptersFragment>() {
         return downloadManager.queue.getStatusObservable()
                 .observeOn(AndroidSchedulers.mainThread())
                 .filter { download: Download ->
-                    if (chapterIdEquals(download.chapter.id))
+                    if (chapterIdEquals(download.chapter.id!!))
                         true
                     else
                         false

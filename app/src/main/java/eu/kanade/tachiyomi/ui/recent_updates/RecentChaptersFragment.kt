@@ -14,7 +14,6 @@ import eu.kanade.tachiyomi.ui.base.fragment.BaseRxFragment
 import eu.kanade.tachiyomi.ui.main.MainActivity
 import eu.kanade.tachiyomi.ui.reader.ReaderActivity
 import eu.kanade.tachiyomi.util.getResourceDrawable
-import eu.kanade.tachiyomi.util.toast
 import eu.kanade.tachiyomi.widget.DeletingChaptersDialog
 import eu.kanade.tachiyomi.widget.DividerItemDecoration
 import eu.kanade.tachiyomi.widget.NpaLinearLayoutManager
@@ -233,7 +232,7 @@ class RecentChaptersFragment : BaseRxFragment<RecentChaptersPresenter>(), Action
      * @param download [Download] object containing download progress.
      */
     private fun getHolder(download: Download): RecentChaptersHolder? {
-        return recycler.findViewHolderForItemId(download.chapter.id) as? RecentChaptersHolder
+        return recycler.findViewHolderForItemId(download.chapter.id!!) as? RecentChaptersHolder
     }
 
     /**

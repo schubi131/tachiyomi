@@ -51,7 +51,7 @@ public class History implements Serializable {
      */
     public static History create(Chapter chapter) {
         History history = new History();
-        history.chapter_id = chapter.id;
+        history.chapter_id = chapter.getId();
         return history;
     }
 }

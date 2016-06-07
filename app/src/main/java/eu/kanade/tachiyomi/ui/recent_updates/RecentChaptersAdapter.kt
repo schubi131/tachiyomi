@@ -111,7 +111,7 @@ class RecentChaptersAdapter(val fragment: RecentChaptersFragment) : FlexibleAdap
     override fun getItemId(position: Int): Long {
         val item = getItem(position)
         if (item is MangaChapter)
-            return item.chapter.id
+            return item.chapter.id!!
         else
             return item.hashCode().toLong()
     }
