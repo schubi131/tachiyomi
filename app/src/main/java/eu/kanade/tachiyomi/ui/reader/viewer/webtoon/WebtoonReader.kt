@@ -165,8 +165,8 @@ class WebtoonReader : BaseReader() {
     override fun onChapterAppended(chapter: Chapter) {
         // Make sure the view is already initialized.
         if (view != null) {
-            val insertStart = pages.size - chapter.pages.size
-            adapter.notifyItemRangeInserted(insertStart, chapter.pages.size)
+            val insertStart = pages.size - chapter.pages!!.size
+            adapter.notifyItemRangeInserted(insertStart, chapter.pages!!.size)
         }
     }
 

@@ -156,7 +156,7 @@ class Batoto(context: Context, override val id: Int) : ParsedOnlineSource(contex
     override fun chapterFromElement(element: Element, chapter: Chapter) {
         val urlElement = element.select("a[href^=http://bato.to/reader").first()
 
-        chapter.setUrl(urlElement.attr("href"))
+        chapter.setUrlWithoutDomain(urlElement.attr("href"))
         chapter.name = urlElement.text()
         chapter.date_upload = element.select("td").getOrNull(4)?.let {
             parseDateFromElement(it)

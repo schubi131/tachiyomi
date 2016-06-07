@@ -123,7 +123,7 @@ class YamlOnlineSource(context: Context, mappings: Map<*, *>) : OnlineSource(con
                 val chapter = Chapter.create()
                 element.select(title).first().let {
                     chapter.name = it.text()
-                    chapter.setUrl(it.attr("href"))
+                    chapter.setUrlWithoutDomain(it.attr("href"))
                 }
                 val dateElement = element.select(date?.select).first()
                 chapter.date_upload = date?.getDate(dateElement, pool, dateFormat)?.time ?: 0

@@ -69,7 +69,7 @@ class Mintmanga(context: Context, override val id: Int) : ParsedOnlineSource(con
     override fun chapterFromElement(element: Element, chapter: Chapter) {
         val urlElement = element.select("a").first()
 
-        chapter.setUrl(urlElement.attr("href") + "?mature=1")
+        chapter.setUrlWithoutDomain(urlElement.attr("href") + "?mature=1")
         chapter.name = urlElement.text().replace(" новое", "")
         chapter.date_upload = element.select("td:eq(1)").first()?.text()?.let {
             SimpleDateFormat("dd/MM/yy", Locale.US).parse(it).time

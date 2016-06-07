@@ -14,6 +14,7 @@ import eu.kanade.tachiyomi.data.source.Language
 import eu.kanade.tachiyomi.data.source.Source
 import eu.kanade.tachiyomi.data.source.model.MangasPage
 import eu.kanade.tachiyomi.data.source.model.Page
+import eu.kanade.tachiyomi.util.UrlUtil
 import okhttp3.*
 import rx.Observable
 import javax.inject.Inject
@@ -442,6 +443,11 @@ abstract class OnlineSource(context: Context) : Source {
             chapterCache.putPageListToCache(getChapterCacheKey(chapter), pages)
         }
     }
+
+    fun Chapter.setUrlWithoutDomain(url: String) {
+        this.url = UrlUtil.getPath(url)
+    }
+
 
     // Overridable method to allow custom parsing.
     open fun parseChapterNumber(chapter: Chapter) {

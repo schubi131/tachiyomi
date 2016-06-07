@@ -74,7 +74,7 @@ class Mangafox(context: Context, override val id: Int) : ParsedOnlineSource(cont
     override fun chapterFromElement(element: Element, chapter: Chapter) {
         val urlElement = element.select("a.tips").first()
 
-        chapter.setUrl(urlElement.attr("href"))
+        chapter.setUrlWithoutDomain(urlElement.attr("href"))
         chapter.name = urlElement.text()
         chapter.date_upload = element.select("span.date").first()?.text()?.let { parseChapterDate(it) } ?: 0
     }

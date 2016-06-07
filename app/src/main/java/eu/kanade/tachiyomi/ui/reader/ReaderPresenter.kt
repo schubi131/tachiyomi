@@ -137,7 +137,7 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
                     } else {
                         observable = source.let { source ->
                             if (source is OnlineSource) {
-                                source.fetchAllImageUrlsFromPageList(ch.pages)
+                                source.fetchAllImageUrlsFromPageList(ch.pages!!)
                                         .flatMap({ source.getCachedImage(it) }, 2)
                                         .doOnCompleted { source.savePageList(ch, ch.pages) }
                             } else {

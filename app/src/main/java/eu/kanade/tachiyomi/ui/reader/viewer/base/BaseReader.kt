@@ -72,7 +72,7 @@ abstract class BaseReader : BaseFragment() {
     fun updatePageNumber() {
         val activePage = getActivePage()
         if (activePage != null) {
-            readerActivity.onPageChanged(activePage.pageNumber, activePage.chapter.pages.size)
+            readerActivity.onPageChanged(activePage.pageNumber, activePage.chapter.pages!!.size)
         }
     }
 
@@ -166,7 +166,7 @@ abstract class BaseReader : BaseFragment() {
         if (!chapters.contains(chapter)) {
             hasRequestedNextChapter = false
             chapters.add(chapter)
-            pages.addAll(chapter.pages)
+            pages.addAll(chapter.pages!!)
             onChapterAppended(chapter)
         }
     }
