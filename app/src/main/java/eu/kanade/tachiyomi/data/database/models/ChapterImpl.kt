@@ -1,7 +1,5 @@
 package eu.kanade.tachiyomi.data.database.models
 
-import eu.kanade.tachiyomi.data.source.model.Page
-
 class ChapterImpl : Chapter {
 
     override var id: Long? = null
@@ -23,10 +21,6 @@ class ChapterImpl : Chapter {
     override var chapter_number: Float = 0f
 
     override var source_order: Int = 0
-
-    override var status: Int = 0
-
-    @Transient override var pages: List<Page>? = null
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -58,7 +58,7 @@ class ChaptersHolder(
             ""
         }
 
-        notifyStatus(chapter.status2)
+        notifyStatus(chapter.status)
     }
 
     fun notifyStatus(status: Int) = with(view.download_text) {
@@ -79,7 +79,7 @@ class ChaptersHolder(
         popup.menuInflater.inflate(R.menu.chapter_single, popup.menu)
 
         // Hide download and show delete if the chapter is downloaded
-        if (chapter.isDownloaded2) {
+        if (chapter.isDownloaded) {
             popup.menu.findItem(R.id.action_download).isVisible = false
             popup.menu.findItem(R.id.action_delete).isVisible = true
         }

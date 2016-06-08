@@ -241,7 +241,7 @@ class ChaptersFragment : BaseRxFragment<ChaptersPresenter>(), ActionMode.Callbac
                 .itemsCallback { dialog, view, i, charSequence ->
 
                     fun getUnreadChaptersSorted() = presenter.chapters
-                            .filter { !it.read && !it.isDownloaded2 }
+                            .filter { !it.read && !it.isDownloaded }
                             .sortedByDescending { it.source_order }
 
                     // i = 0: Download 1

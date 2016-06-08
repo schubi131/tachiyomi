@@ -243,7 +243,7 @@ class ReaderActivity : BaseRxActivity<ReaderPresenter>() {
         please_wait.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in_long))
     }
 
-    fun onChapterReady(manga: Manga, chapter: Chapter, currentPage: Page?) {
+    fun onChapterReady(manga: Manga, chapter: ReaderChapter, currentPage: Page?) {
         please_wait.visibility = View.GONE
         val activePage = currentPage ?: chapter.pages!!.last()
 
@@ -251,13 +251,13 @@ class ReaderActivity : BaseRxActivity<ReaderPresenter>() {
         setActiveChapter(chapter, activePage.pageNumber)
     }
 
-    fun onEnterChapter(chapter: Chapter, currentPage: Int) {
+    fun onEnterChapter(chapter: ReaderChapter, currentPage: Int) {
         val activePage = if (currentPage == -1) chapter.pages!!.lastIndex else currentPage
         presenter.setActiveChapter(chapter)
         setActiveChapter(chapter, activePage)
     }
 
-    fun setActiveChapter(chapter: Chapter, currentPage: Int) {
+    fun setActiveChapter(chapter: ReaderChapter, currentPage: Int) {
         val numPages = chapter.pages!!.size
         if (page_seekbar.rotation != 180f) {
             right_page_text.text = "$numPages"
@@ -275,7 +275,7 @@ class ReaderActivity : BaseRxActivity<ReaderPresenter>() {
             chapter.name)
     }
 
-    fun onAppendChapter(chapter: Chapter) {
+    fun onAppendChapter(chapter: ReaderChapter) {
         viewer?.onPageListAppendReady(chapter)
     }
 
