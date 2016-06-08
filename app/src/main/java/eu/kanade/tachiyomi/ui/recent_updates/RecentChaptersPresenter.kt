@@ -146,7 +146,7 @@ class RecentChaptersPresenter : BasePresenter<RecentChaptersFragment>() {
             // Get source of chapter.
             val source = sourceManager.get(manga.source)!!
 
-            model.status2 = if (downloadManager.isChapterDownloaded(source, manga, chapter))
+            model.status = if (downloadManager.isChapterDownloaded(source, manga, chapter))
                 Download.DOWNLOADED
             else
                 Download.NOT_DOWNLOADED
@@ -255,7 +255,7 @@ class RecentChaptersPresenter : BasePresenter<RecentChaptersFragment>() {
         val source = sourceManager.get(chapter.manga.source) ?: return
         downloadManager.queue.del(chapter)
         downloadManager.deleteChapter(source, chapter.manga, chapter)
-        chapter.status2 = Download.NOT_DOWNLOADED
+        chapter.status = Download.NOT_DOWNLOADED
         chapter.download = null
     }
 

@@ -40,7 +40,7 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
     lateinit var manga: Manga
         private set
 
-    lateinit var chapter: Chapter
+    lateinit var chapter: ReaderChapter
         private set
 
     lateinit var source: Source
@@ -48,14 +48,12 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
 
     var requestedPage: Int = 0
     var currentPage: Page? = null
-    private var nextChapter: Chapter? = null
-    private var previousChapter: Chapter? = null
+    private var nextChapter: ReaderChapter? = null
+    private var previousChapter: ReaderChapter? = null
     private var mangaSyncList: List<MangaSync>? = null
 
     private val retryPageSubject by lazy { PublishSubject.create<Page>() }
-    private val pageInitializerSubject by lazy { PublishSubject.create<Chapter>() }
-
-    val isSeamlessMode by lazy { prefs.seamlessMode() }
+    private val pageInitializerSubject by lazy { PublishSubject.create<ReaderChapter>() }
 
     private var appenderSubscription: Subscription? = null
 
@@ -63,7 +61,6 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
     private val GET_PAGE_LIST = 2
     private val GET_ADJACENT_CHAPTERS = 3
     private val GET_MANGA_SYNC = 4
-    private val PRELOAD_NEXT_CHAPTER = 5
 
     private val MANGA_KEY = "manga_key"
     private val CHAPTER_KEY = "chapter_key"
@@ -75,10 +72,10 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
         if (savedState == null) {
             val event = SharedData.get(ReaderEvent::class.java) ?: return
             manga = event.manga
-            chapter = event.chapter
+            chapter = event.chapter.toModel()
         } else {
             manga = savedState.getSerializable(MANGA_KEY) as Manga
-            chapter = savedState.getSerializable(CHAPTER_KEY) as Chapter
+            chapter = savedState.getSerializable(CHAPTER_KEY) as ReaderChapter
             requestedPage = savedState.getInt(PAGE_KEY)
         }
 
@@ -93,12 +90,6 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
         startableLatestCache(GET_ADJACENT_CHAPTERS,
                 { getAdjacentChaptersObservable() },
                 { view, pair -> view.onAdjacentChapters(pair.first, pair.second) })
-
-        startable(PRELOAD_NEXT_CHAPTER,
-                { getPreloadNextChapterObservable() },
-                { },
-                { error -> Timber.e("Error preloading chapter") })
-
 
         restartable(GET_MANGA_SYNC,
                 { getMangaSyncObservable().subscribe() })
@@ -125,17 +116,21 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
         super.onSave(state)
     }
 
+    private fun Chapter.toModel(): ReaderChapter {
+        val model = ReaderChapter(this)
+        return model
+    }
+
     private fun initializeSubjects() {
         // Listen for pages initialization events
         add(pageInitializerSubject.observeOn(Schedulers.io())
                 .concatMap { ch ->
-                    val observable: Observable<Page>
                     if (ch.isDownloaded) {
                         val chapterDir = downloadManager.getAbsoluteChapterDirectory(source, manga, ch)
-                        observable = Observable.from(ch.pages)
+                        Observable.from(ch.pages)
                                 .flatMap { downloadManager.getDownloadedImage(it, chapterDir) }
                     } else {
-                        observable = source.let { source ->
+                        source.let { source ->
                             if (source is OnlineSource) {
                                 source.fetchAllImageUrlsFromPageList(ch.pages!!)
                                         .flatMap({ source.getCachedImage(it) }, 2)
@@ -144,11 +139,6 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
                                 Observable.from(ch.pages)
                                         .flatMap { source.fetchImage(it) }
                             }
-                        }
-                    }
-                    observable.doOnCompleted {
-                        if (!isSeamlessMode && chapter === ch) {
-                            preloadNextChapter()
                         }
                     }
                 }.subscribe())
@@ -160,7 +150,7 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
     }
 
     // Returns the page list of a chapter
-    private fun getPageListObservable(chapter: Chapter): Observable<Chapter> {
+    private fun getPageListObservable(chapter: ReaderChapter): Observable<ReaderChapter> {
         val observable: Observable<List<Page>> = if (chapter.isDownloaded)
         // Fetch the page list from disk
             Observable.just(downloadManager.getSavedPageList(source, manga, chapter)!!)
@@ -192,8 +182,8 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
         val strategy = getAdjacentChaptersStrategy()
         return Observable.zip(strategy.first, strategy.second) { prev, next -> Pair(prev, next) }
                 .doOnNext { pair ->
-                    previousChapter = pair.first
-                    nextChapter = pair.second
+                    previousChapter = pair.first.toModel()
+                    nextChapter = pair.second.toModel()
                 }
                 .observeOn(AndroidSchedulers.mainThread())
     }
@@ -208,22 +198,6 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
         else -> throw AssertionError("Unknown sorting method")
     }
 
-    // Preload the first pages of the next chapter. Only for non seamless mode
-    private fun getPreloadNextChapterObservable(): Observable<Page> {
-        val nextChapter = nextChapter ?: return Observable.error(Exception("No next chapter"))
-        return source.fetchPageList(nextChapter)
-                .flatMap { pages ->
-                    nextChapter.pages = pages
-                    val pagesToPreload = Math.min(pages.size, 5)
-                    Observable.from(pages).take(pagesToPreload)
-                }
-                // Preload up to 5 images
-                .concatMap { source.fetchImage(it) }
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .doOnCompleted { stopPreloadingNextChapter() }
-    }
-
     private fun getMangaSyncObservable(): Observable<List<MangaSync>> {
         return db.getMangasSync(manga).asRxObservable()
                 .take(1)
@@ -231,13 +205,9 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
     }
 
     // Loads the given chapter
-    private fun loadChapter(chapter: Chapter, requestedPage: Int = 0) {
-        if (isSeamlessMode) {
-            if (appenderSubscription != null)
-                remove(appenderSubscription)
-        } else {
-            stopPreloadingNextChapter()
-        }
+    private fun loadChapter(chapter: ReaderChapter, requestedPage: Int = 0) {
+        if (appenderSubscription != null)
+            remove(appenderSubscription)
 
         this.chapter = chapter
         chapter.status = if (isChapterDownloaded(chapter)) Download.DOWNLOADED else Download.NOT_DOWNLOADED
@@ -256,7 +226,7 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
         start(GET_ADJACENT_CHAPTERS)
     }
 
-    fun setActiveChapter(chapter: Chapter) {
+    fun setActiveChapter(chapter: ReaderChapter) {
         onChapterLeft()
         this.chapter = chapter
         nextChapter = null
@@ -279,7 +249,7 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
 
             appenderSubscription = getPageListObservable(it).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
-                    .compose(deliverLatestCache<Chapter>())
+                    .compose(deliverLatestCache<ReaderChapter>())
                     .subscribe(split({ view, chapter ->
                         view.onAppendChapter(chapter)
                     }, { view, error ->
@@ -290,7 +260,6 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
 
         }
     }
-
 
     // Check whether the given chapter is downloaded
     fun isChapterDownloaded(chapter: Chapter): Boolean {
@@ -420,25 +389,6 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
 
     fun hasPreviousChapter(): Boolean {
         return previousChapter != null
-    }
-
-    private fun preloadNextChapter() {
-        nextChapter?.let {
-            if (!isChapterDownloaded(it)) {
-                start(PRELOAD_NEXT_CHAPTER)
-            }
-        }
-    }
-
-    private fun stopPreloadingNextChapter() {
-        if (!isUnsubscribed(PRELOAD_NEXT_CHAPTER)) {
-            stop(PRELOAD_NEXT_CHAPTER)
-            nextChapter?.let { chapter ->
-                if (chapter.pages != null) {
-                    source.let { if (it is OnlineSource) it.savePageList(chapter, chapter.pages) }
-                }
-            }
-        }
     }
 
     fun updateMangaViewer(viewer: Int) {

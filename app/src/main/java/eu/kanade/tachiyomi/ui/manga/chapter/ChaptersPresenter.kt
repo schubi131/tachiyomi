@@ -159,7 +159,7 @@ class ChaptersPresenter : BasePresenter<ChaptersFragment>() {
             model.download = download
         } else {
             // Otherwise ask the manager if the chapter is downloaded and assign it to the status.
-            model.status2 = if (downloadManager.isChapterDownloaded(source, manga, this))
+            model.status = if (downloadManager.isChapterDownloaded(source, manga, this))
                 Download.DOWNLOADED
             else
                 Download.NOT_DOWNLOADED
@@ -210,7 +210,7 @@ class ChaptersPresenter : BasePresenter<ChaptersFragment>() {
             observable = observable.filter { !it.read }
         }
         if (onlyDownloaded()) {
-            observable = observable.filter { it.isDownloaded2 }
+            observable = observable.filter { it.isDownloaded }
         }
         val sortFunction: (Chapter, Chapter) -> Int = when (manga.sorting) {
             Manga.SORTING_SOURCE -> when (sortDescending()) {
@@ -331,7 +331,7 @@ class ChaptersPresenter : BasePresenter<ChaptersFragment>() {
     private fun deleteChapter(chapter: ChapterModel) {
         downloadManager.queue.del(chapter)
         downloadManager.deleteChapter(source, manga, chapter)
-        chapter.status2 = Download.NOT_DOWNLOADED
+        chapter.status = Download.NOT_DOWNLOADED
         chapter.download = null
     }
 

@@ -69,7 +69,7 @@ class RecentChaptersHolder(
         }
 
         // Set chapter status
-        notifyStatus(chapter.status2)
+        notifyStatus(chapter.status)
     }
 
     /**
@@ -100,7 +100,7 @@ class RecentChaptersHolder(
         popup.menuInflater.inflate(R.menu.chapter_recent, popup.menu)
 
         // Hide download and show delete if the chapter is downloaded and
-        if (chapter.isDownloaded2) {
+        if (chapter.isDownloaded) {
             popup.menu.findItem(R.id.action_download).isVisible = false
             popup.menu.findItem(R.id.action_delete).isVisible = true
         }

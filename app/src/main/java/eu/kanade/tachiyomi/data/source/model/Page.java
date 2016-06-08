@@ -2,8 +2,8 @@ package eu.kanade.tachiyomi.data.source.model;
 
 import java.util.List;
 
-import eu.kanade.tachiyomi.data.database.models.Chapter;
 import eu.kanade.tachiyomi.data.network.ProgressListener;
+import eu.kanade.tachiyomi.ui.reader.ReaderChapter;
 import rx.subjects.PublishSubject;
 
 public class Page implements ProgressListener {
@@ -11,7 +11,7 @@ public class Page implements ProgressListener {
     private int pageNumber;
     private String url;
     private String imageUrl;
-    private transient Chapter chapter;
+    private transient ReaderChapter chapter;
     private transient String imagePath;
     private transient volatile int status;
     private transient volatile int progress;
@@ -90,11 +90,11 @@ public class Page implements ProgressListener {
         this.statusSubject = subject;
     }
 
-    public Chapter getChapter() {
+    public ReaderChapter getChapter() {
         return chapter;
     }
 
-    public void setChapter(Chapter chapter) {
+    public void setChapter(ReaderChapter chapter) {
         this.chapter = chapter;
     }
 
