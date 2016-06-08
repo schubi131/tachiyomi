@@ -71,7 +71,7 @@ class ChaptersHolder(
         }
     }
 
-    private fun showPopupMenu(view: View) = item?.let { item ->
+    private fun showPopupMenu(view: View) = item?.let { chapter ->
         // Create a PopupMenu, giving it the clicked view for an anchor
         val popup = PopupMenu(view.context, view)
 
@@ -79,32 +79,35 @@ class ChaptersHolder(
         popup.menuInflater.inflate(R.menu.chapter_single, popup.menu)
 
         // Hide download and show delete if the chapter is downloaded
-        if (item.isDownloaded2) {
+        if (chapter.isDownloaded2) {
             popup.menu.findItem(R.id.action_download).isVisible = false
             popup.menu.findItem(R.id.action_delete).isVisible = true
         }
 
         // Hide mark as unread when the chapter is unread
-        if (!item.read && item.last_page_read == 0) {
+        if (!chapter.read && chapter.last_page_read == 0) {
             popup.menu.findItem(R.id.action_mark_as_unread).isVisible = false
         }
 
         // Hide mark as read when the chapter is read
-        if (item.read) {
+        if (chapter.read) {
             popup.menu.findItem(R.id.action_mark_as_read).isVisible = false
         }
 
         // Set a listener so we are notified if a menu item is clicked
         popup.setOnMenuItemClickListener { menuItem ->
-            val chapter = listOf(item)
+            val chapterList = listOf(chapter)
 
-            when (menuItem.itemId) {
-                R.id.action_download -> adapter.fragment.downloadChapters(chapter)
-                R.id.action_delete -> adapter.fragment.deleteChapters(chapter)
-                R.id.action_mark_as_read -> adapter.fragment.markAsRead(chapter)
-                R.id.action_mark_as_unread -> adapter.fragment.markAsUnread(chapter)
-                R.id.action_mark_previous_as_read -> adapter.fragment.markPreviousAsRead(item)
+            with(adapter.fragment) {
+                when (menuItem.itemId) {
+                    R.id.action_download -> downloadChapters(chapterList)
+                    R.id.action_delete -> deleteChapters(chapterList)
+                    R.id.action_mark_as_read -> markAsRead(chapterList)
+                    R.id.action_mark_as_unread -> markAsUnread(chapterList)
+                    R.id.action_mark_previous_as_read -> markPreviousAsRead(chapter)
+                }
             }
+
             true
         }
 

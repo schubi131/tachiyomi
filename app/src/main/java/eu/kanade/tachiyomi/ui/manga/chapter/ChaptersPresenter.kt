@@ -234,7 +234,7 @@ class ChaptersPresenter : BasePresenter<ChaptersFragment>() {
     fun onDownloadStatusChange(download: Download) {
         // Assign the download to the model object.
         if (download.status == Download.QUEUE) {
-            chapters.find { it.id === download.chapter.id }?.let {
+            chapters.find { it.id == download.chapter.id }?.let {
                 if (it.download == null) {
                     it.download = download
                 }
