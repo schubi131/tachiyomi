@@ -20,7 +20,7 @@ import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import rx.subjects.PublishSubject
 import timber.log.Timber
-import javax.inject.Inject
+import uy.kohesive.injekt.injectLazy
 
 /**
  * Presenter of [ChaptersFragment].
@@ -30,22 +30,22 @@ class ChaptersPresenter : BasePresenter<ChaptersFragment>() {
     /**
      * Database helper.
      */
-    @Inject lateinit var db: DatabaseHelper
+    val db: DatabaseHelper by injectLazy()
 
     /**
      * Source manager.
      */
-    @Inject lateinit var sourceManager: SourceManager
+    val sourceManager: SourceManager by injectLazy()
 
     /**
      * Preferences.
      */
-    @Inject lateinit var preferences: PreferencesHelper
+    val preferences: PreferencesHelper by injectLazy()
 
     /**
      * Downloads manager.
      */
-    @Inject lateinit var downloadManager: DownloadManager
+    val downloadManager: DownloadManager by injectLazy()
 
     /**
      * Active manga.

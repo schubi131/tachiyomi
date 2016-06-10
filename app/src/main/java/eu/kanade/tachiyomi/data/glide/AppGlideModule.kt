@@ -7,18 +7,17 @@ import com.bumptech.glide.integration.okhttp3.OkHttpUrlLoader
 import com.bumptech.glide.load.engine.cache.InternalCacheDiskCacheFactory
 import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.module.GlideModule
-import eu.kanade.tachiyomi.App
 import eu.kanade.tachiyomi.data.database.models.Manga
 import eu.kanade.tachiyomi.data.network.NetworkHelper
+import uy.kohesive.injekt.injectLazy
 import java.io.InputStream
-import javax.inject.Inject
 
 /**
  * Class used to update Glide module settings
  */
 class AppGlideModule : GlideModule {
 
-    @Inject lateinit var networkHelper: NetworkHelper
+    val networkHelper: NetworkHelper by injectLazy()
 
     override fun applyOptions(context: Context, builder: GlideBuilder) {
         // Set the cache size of Glide to 15 MiB
@@ -26,7 +25,6 @@ class AppGlideModule : GlideModule {
     }
 
     override fun registerComponents(context: Context, glide: Glide) {
-        App.get(context).component.inject(this)
         glide.register(GlideUrl::class.java, InputStream::class.java,
                 OkHttpUrlLoader.Factory(networkHelper.client))
         glide.register(Manga::class.java, InputStream::class.java, MangaModelLoader.Factory())

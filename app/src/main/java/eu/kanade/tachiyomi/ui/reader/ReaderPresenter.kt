@@ -22,18 +22,18 @@ import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import timber.log.Timber
+import uy.kohesive.injekt.injectLazy
 import java.io.File
 import java.util.*
-import javax.inject.Inject
 
 class ReaderPresenter : BasePresenter<ReaderActivity>() {
 
-    @Inject lateinit var prefs: PreferencesHelper
-    @Inject lateinit var db: DatabaseHelper
-    @Inject lateinit var downloadManager: DownloadManager
-    @Inject lateinit var syncManager: MangaSyncManager
-    @Inject lateinit var sourceManager: SourceManager
-    @Inject lateinit var chapterCache: ChapterCache
+    val prefs: PreferencesHelper by injectLazy()
+    val db: DatabaseHelper by injectLazy()
+    val downloadManager: DownloadManager by injectLazy()
+    val syncManager: MangaSyncManager by injectLazy()
+    val sourceManager: SourceManager by injectLazy()
+    val chapterCache: ChapterCache by injectLazy()
 
     lateinit var manga: Manga
         private set

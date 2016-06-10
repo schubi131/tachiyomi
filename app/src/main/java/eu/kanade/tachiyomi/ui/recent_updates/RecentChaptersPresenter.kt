@@ -13,29 +13,29 @@ import rx.Observable
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
 import timber.log.Timber
+import uy.kohesive.injekt.injectLazy
 import java.util.*
-import javax.inject.Inject
 
 class RecentChaptersPresenter : BasePresenter<RecentChaptersFragment>() {
     /**
      * Used to connect to database
      */
-    @Inject lateinit var db: DatabaseHelper
+    val db: DatabaseHelper by injectLazy()
 
     /**
      * Used to get settings
      */
-    @Inject lateinit var preferences: PreferencesHelper
+    val preferences: PreferencesHelper by injectLazy()
 
     /**
      * Used to get information from download manager
      */
-    @Inject lateinit var downloadManager: DownloadManager
+    val downloadManager: DownloadManager by injectLazy()
 
     /**
      * Used to get source from source id
      */
-    @Inject lateinit var sourceManager: SourceManager
+    val sourceManager: SourceManager by injectLazy()
 
     /**
      * List containing chapter and manga information
