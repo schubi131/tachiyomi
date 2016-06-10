@@ -1,7 +1,6 @@
 package eu.kanade.tachiyomi.data.source.online
 
 import android.content.Context
-import eu.kanade.tachiyomi.App
 import eu.kanade.tachiyomi.data.cache.ChapterCache
 import eu.kanade.tachiyomi.data.database.models.Chapter
 import eu.kanade.tachiyomi.data.database.models.Manga
@@ -17,7 +16,7 @@ import eu.kanade.tachiyomi.data.source.model.Page
 import eu.kanade.tachiyomi.util.UrlUtil
 import okhttp3.*
 import rx.Observable
-import javax.inject.Inject
+import uy.kohesive.injekt.injectLazy
 
 /**
  * A simple implementation for sources from a website.
@@ -29,17 +28,17 @@ abstract class OnlineSource(context: Context) : Source {
     /**
      * Network service.
      */
-    @Inject lateinit var network: NetworkHelper
+    val network: NetworkHelper by injectLazy()
 
     /**
      * Chapter cache.
      */
-    @Inject lateinit var chapterCache: ChapterCache
+    val chapterCache: ChapterCache by injectLazy()
 
     /**
      * Preferences helper.
      */
-    @Inject lateinit var preferences: PreferencesHelper
+    val preferences: PreferencesHelper by injectLazy()
 
     /**
      * Base url of the website without the trailing slash, like: http://mysite.com
@@ -61,11 +60,6 @@ abstract class OnlineSource(context: Context) : Source {
      */
     open val client: OkHttpClient
         get() = network.client
-
-    init {
-        // Inject dependencies.
-        App.get(context).component.inject(this)
-    }
 
     /**
      * Headers builder for requests. Implementations can override this method for custom headers.

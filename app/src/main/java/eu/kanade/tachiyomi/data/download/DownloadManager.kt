@@ -27,12 +27,18 @@ import rx.schedulers.Schedulers
 import rx.subjects.BehaviorSubject
 import rx.subjects.PublishSubject
 import timber.log.Timber
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 import java.io.File
 import java.io.FileReader
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-class DownloadManager(private val context: Context, private val sourceManager: SourceManager, private val preferences: PreferencesHelper) {
+class DownloadManager(
+        private val context: Context,
+        private val sourceManager: SourceManager = Injekt.get(),
+        private val preferences: PreferencesHelper = Injekt.get()
+) {
 
     private val gson = Gson()
 

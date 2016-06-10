@@ -39,7 +39,6 @@ android {
         targetSdkVersion 23
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         versionCode 8
-        versionCode project.findProperty('versionCode')?.toInteger() ?: 8
         versionName "0.2.2"
 
         buildConfigField "String", "COMMIT_COUNT", "\"${getCommitCount()}\""
@@ -73,10 +72,6 @@ android {
     lintOptions {
         abortOnError false
         checkReleaseBuilds false
-    }
-
-    sourceSets {
-        main.java.srcDirs += 'src/main/kotlin'
     }
 
     // http://stackoverflow.com/questions/32759529/androidhttpclient-not-found-when-running-robolectric
@@ -151,9 +146,7 @@ dependencies {
     compile "info.android15.nucleus:nucleus-support-v7:$NUCLEUS_VERSION"
 
     // Dependency injection
-    compile "com.google.dagger:dagger:$DAGGER_VERSION"
-    kapt "com.google.dagger:dagger-compiler:$DAGGER_VERSION"
-    provided 'org.glassfish:javax.annotation:10.0-b28'
+    compile "uy.kohesive.injekt:injekt-core:1.16.1"
 
     // Image library
     compile 'com.github.bumptech.glide:glide:3.7.0'
@@ -186,9 +179,10 @@ dependencies {
 }
 
 buildscript {
-    ext.kotlin_version = '1.0.2'
+    ext.kotlin_version = '1.0.3-eap-30'
     repositories {
         mavenCentral()
+        maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
@@ -197,4 +191,5 @@ buildscript {
 
 repositories {
     mavenCentral()
+    maven { url "https://dl.bintray.com/kotlin/kotlin-eap" }
 }
