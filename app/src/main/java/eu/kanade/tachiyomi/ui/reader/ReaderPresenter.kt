@@ -8,7 +8,6 @@ import eu.kanade.tachiyomi.data.database.models.History
 import eu.kanade.tachiyomi.data.database.models.Manga
 import eu.kanade.tachiyomi.data.database.models.MangaSync
 import eu.kanade.tachiyomi.data.download.DownloadManager
-import eu.kanade.tachiyomi.data.download.model.Download
 import eu.kanade.tachiyomi.data.mangasync.MangaSyncManager
 import eu.kanade.tachiyomi.data.mangasync.UpdateMangaSyncService
 import eu.kanade.tachiyomi.data.preference.PreferencesHelper
@@ -22,7 +21,6 @@ import rx.Observable
 import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
 import rx.schedulers.Schedulers
-import rx.subjects.PublishSubject
 import timber.log.Timber
 import java.io.File
 import java.util.*
@@ -46,14 +44,11 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
     lateinit var source: Source
         private set
 
-    var requestedPage: Int = 0
-    var currentPage: Page? = null
     private var nextChapter: ReaderChapter? = null
     private var previousChapter: ReaderChapter? = null
     private var mangaSyncList: List<MangaSync>? = null
 
-    private val retryPageSubject by lazy { PublishSubject.create<Page>() }
-    private val pageInitializerSubject by lazy { PublishSubject.create<ReaderChapter>() }
+    private val loader by lazy { ChapterLoader(downloadManager, manga, source) }
 
     private var appenderSubscription: Subscription? = null
 
@@ -64,7 +59,6 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
 
     private val MANGA_KEY = "manga_key"
     private val CHAPTER_KEY = "chapter_key"
-    private val PAGE_KEY = "page_key"
 
     override fun onCreate(savedState: Bundle?) {
         super.onCreate(savedState)
@@ -76,12 +70,9 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
         } else {
             manga = savedState.getSerializable(MANGA_KEY) as Manga
             chapter = savedState.getSerializable(CHAPTER_KEY) as ReaderChapter
-            requestedPage = savedState.getInt(PAGE_KEY)
         }
 
         source = sourceManager.get(manga.source)!!
-
-        initializeSubjects()
 
         restartableLatestCache(PREPARE_READER,
                 { Observable.just(manga) },
@@ -95,8 +86,8 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
                 { getMangaSyncObservable().subscribe() })
 
         restartableLatestCache(GET_PAGE_LIST,
-                { getPageListObservable(chapter) },
-                { view, chapter -> view.onChapterReady(manga, this.chapter, currentPage) },
+                { loadChapterObservable(chapter) },
+                { view, chapter -> view.onChapterReady(this.chapter) },
                 { view, error -> view.onChapterError(error) })
 
         if (savedState == null) {
@@ -109,11 +100,16 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
     }
 
     override fun onSave(state: Bundle) {
+        chapter.requestedPage = chapter.last_page_read
         onChapterLeft()
         state.putSerializable(MANGA_KEY, manga)
         state.putSerializable(CHAPTER_KEY, chapter)
-        state.putSerializable(PAGE_KEY, currentPage?.pageNumber ?: 0)
         super.onSave(state)
+    }
+
+    override fun onDestroy() {
+        loader.cleanup()
+        super.onDestroy()
     }
 
     private fun Chapter.toModel(): ReaderChapter {
@@ -121,61 +117,11 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
         return model
     }
 
-    private fun initializeSubjects() {
-        // Listen for pages initialization events
-        add(pageInitializerSubject.observeOn(Schedulers.io())
-                .concatMap { ch ->
-                    if (ch.isDownloaded) {
-                        val chapterDir = downloadManager.getAbsoluteChapterDirectory(source, manga, ch)
-                        Observable.from(ch.pages)
-                                .flatMap { downloadManager.getDownloadedImage(it, chapterDir) }
-                    } else {
-                        source.let { source ->
-                            if (source is OnlineSource) {
-                                source.fetchAllImageUrlsFromPageList(ch.pages!!)
-                                        .flatMap({ source.getCachedImage(it) }, 2)
-                                        .doOnCompleted { source.savePageList(ch, ch.pages) }
-                            } else {
-                                Observable.from(ch.pages)
-                                        .flatMap { source.fetchImage(it) }
-                            }
-                        }
-                    }
-                }.subscribe())
-
-        // Listen por retry events
-        add(retryPageSubject.observeOn(Schedulers.io())
-                .flatMap { source.fetchImage(it) }
-                .subscribe())
-    }
-
-    // Returns the page list of a chapter
-    private fun getPageListObservable(chapter: ReaderChapter): Observable<ReaderChapter> {
-        val observable: Observable<List<Page>> = if (chapter.isDownloaded)
-        // Fetch the page list from disk
-            Observable.just(downloadManager.getSavedPageList(source, manga, chapter)!!)
-        else
-        // Fetch the page list from cache or fallback to network
-            source.fetchPageList(chapter)
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-
-        return observable.map { pages ->
-            for (page in pages) {
-                page.chapter = chapter
-            }
-            chapter.pages = pages
-            if (requestedPage >= -1 || currentPage == null) {
-                if (requestedPage == -1) {
-                    currentPage = pages[pages.size - 1]
-                } else {
-                    currentPage = pages[requestedPage]
-                }
-            }
-            requestedPage = -2
-            pageInitializerSubject.onNext(chapter)
-            chapter
-        }
+    private fun loadChapterObservable(chapter: ReaderChapter): Observable<ReaderChapter> {
+        loader.restart()
+        return loader.loadChapter(chapter)
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
     }
 
     private fun getAdjacentChaptersObservable(): Observable<Pair<Chapter, Chapter>> {
@@ -210,13 +156,12 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
             remove(appenderSubscription)
 
         this.chapter = chapter
-        chapter.status = if (isChapterDownloaded(chapter)) Download.DOWNLOADED else Download.NOT_DOWNLOADED
 
         // If the chapter is partially read, set the starting page to the last the user read
-        if (!chapter.read && chapter.last_page_read != 0)
-            this.requestedPage = chapter.last_page_read
+        chapter.requestedPage = if (!chapter.read && chapter.last_page_read != 0)
+            chapter.last_page_read
         else
-            this.requestedPage = requestedPage
+            requestedPage
 
         // Reset next and previous chapter. They have to be fetched again
         nextChapter = null
@@ -245,9 +190,7 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
             if (appenderSubscription != null)
                 remove(appenderSubscription)
 
-            it.status = if (isChapterDownloaded(it)) Download.DOWNLOADED else Download.NOT_DOWNLOADED
-
-            appenderSubscription = getPageListObservable(it).subscribeOn(Schedulers.io())
+            appenderSubscription = loader.loadChapter(it).subscribeOn(Schedulers.io())
                     .observeOn(AndroidSchedulers.mainThread())
                     .compose(deliverLatestCache<ReaderChapter>())
                     .subscribe(split({ view, chapter ->
@@ -261,11 +204,6 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
         }
     }
 
-    // Check whether the given chapter is downloaded
-    fun isChapterDownloaded(chapter: Chapter): Boolean {
-        return downloadManager.isChapterDownloaded(source, manga, chapter)
-    }
-
     fun retryPage(page: Page?) {
         if (page != null) {
             page.status = Page.QUEUE
@@ -273,7 +211,7 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
                 val file = File(page.imagePath)
                 chapterCache.removeFileFromCache(file.name)
             }
-            retryPageSubject.onNext(page)
+            loader.retryPage(page)
         }
     }
 
@@ -282,24 +220,13 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
     fun onChapterLeft() {
         val pages = chapter.pages ?: return
 
-        // Get the last page read
-        var activePageNumber = chapter.last_page_read
-
-        // Just in case, avoid out of index exceptions
-        if (activePageNumber >= pages.size) {
-            activePageNumber = pages.size - 1
-        }
-        val activePage = pages[activePageNumber]
-
         // Cache current page list progress for online chapters to allow a faster reopen
         if (!chapter.isDownloaded) {
             source.let { if (it is OnlineSource) it.savePageList(chapter, pages) }
         }
 
         // Save current progress of the chapter. Mark as read if the chapter is finished
-        if (activePage.isLastPage) {
-            chapter.read = true
-
+        if (chapter.read) {
             // Check if remove after read is selected by user
             if (prefs.removeAfterRead()) {
                 if (prefs.removeAfterReadPrevious() ) {
@@ -377,7 +304,7 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
     fun loadPreviousChapter(): Boolean {
         previousChapter?.let {
             onChapterLeft()
-            loadChapter(it, 0)
+            loadChapter(it, if (it.read) -1 else 0)
             return true
         }
         return false
@@ -394,5 +321,16 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
     fun updateMangaViewer(viewer: Int) {
         manga.viewer = viewer
         db.insertManga(manga).executeAsBlocking()
+    }
+
+    fun onPageChanged(page: Page) {
+        val chapter = page.chapter
+        chapter.last_page_read = page.pageNumber
+        if (chapter.pages!!.last() === page) {
+            chapter.read = true
+        }
+        if (!chapter.isDownloaded && page.status == Page.QUEUE) {
+            loader.loadPriorizedPage(page)
+        }
     }
 }

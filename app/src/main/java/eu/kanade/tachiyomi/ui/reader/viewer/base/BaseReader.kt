@@ -91,7 +91,7 @@ abstract class BaseReader : BaseFragment() {
     fun onPageChanged(position: Int) {
         val oldPage = pages[currentPage]
         val newPage = pages[position]
-        newPage.chapter.last_page_read = newPage.pageNumber
+        readerActivity.presenter.onPageChanged(newPage)
 
         val oldChapter = oldPage.chapter
         val newChapter = newPage.chapter

@@ -20,7 +20,6 @@ import eu.kanade.tachiyomi.data.database.models.Chapter
 import eu.kanade.tachiyomi.data.database.models.Manga
 import eu.kanade.tachiyomi.data.preference.PreferencesHelper
 import eu.kanade.tachiyomi.data.preference.getOrDefault
-import eu.kanade.tachiyomi.data.source.model.Page
 import eu.kanade.tachiyomi.ui.base.activity.BaseRxActivity
 import eu.kanade.tachiyomi.ui.reader.viewer.base.BaseReader
 import eu.kanade.tachiyomi.ui.reader.viewer.pager.horizontal.LeftToRightReader
@@ -114,16 +113,6 @@ class ReaderActivity : BaseRxActivity<ReaderPresenter>() {
     override fun onResume() {
         super.onResume()
         setSystemUiVisibility()
-    }
-
-    override fun onPause() {
-        viewer?.let {
-            val activePage = it.getActivePage()
-            if (activePage != null) {
-                presenter.currentPage = activePage
-            }
-        }
-        super.onPause()
     }
 
     override fun onDestroy() {
@@ -243,9 +232,10 @@ class ReaderActivity : BaseRxActivity<ReaderPresenter>() {
         please_wait.startAnimation(AnimationUtils.loadAnimation(this, R.anim.fade_in_long))
     }
 
-    fun onChapterReady(manga: Manga, chapter: ReaderChapter, currentPage: Page?) {
+    fun onChapterReady(chapter: ReaderChapter) {
         please_wait.visibility = View.GONE
-        val activePage = currentPage ?: chapter.pages!!.last()
+        val pages = chapter.pages ?: run { onChapterError(Exception("Null pages")); return }
+        val activePage = pages.getOrElse(chapter.requestedPage) { pages.first() }
 
         viewer?.onPageListReady(chapter, activePage)
         setActiveChapter(chapter, activePage.pageNumber)
