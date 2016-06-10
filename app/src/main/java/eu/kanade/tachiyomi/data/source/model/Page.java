@@ -1,7 +1,5 @@
 package eu.kanade.tachiyomi.data.source.model;
 
-import java.util.List;
-
 import eu.kanade.tachiyomi.data.network.ProgressListener;
 import eu.kanade.tachiyomi.ui.reader.ReaderChapter;
 import rx.subjects.PublishSubject;
@@ -98,8 +96,4 @@ public class Page implements ProgressListener {
         this.chapter = chapter;
     }
 
-    public boolean isLastPage() {
-        List<Page> chapterPages = chapter.getPages();
-        return chapterPages.size() -1 == pageNumber;
-    }
 }
