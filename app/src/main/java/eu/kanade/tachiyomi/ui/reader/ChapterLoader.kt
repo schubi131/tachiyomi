@@ -106,7 +106,7 @@ class ChapterLoader(
             val pagesToLoad = if (startPage == 0)
                 pages
             else
-                pages.subList(startPage, pages.size) + pages.subList(0, startPage)
+                pages.subList(startPage, pages.size)
 
             pagesToLoad.forEach { queue.offer(PriorityPage(it, 0)) }
         }

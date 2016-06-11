@@ -219,6 +219,9 @@ class ReaderActivity : BaseRxActivity<ReaderPresenter>() {
         // Ignore
     }
 
+    /**
+     * Called from the presenter at startup, allowing to prepare the selected reader.
+     */
     fun onMangaOpen(manga: Manga) {
         if (viewer == null) {
             viewer = getOrCreateViewer(manga)

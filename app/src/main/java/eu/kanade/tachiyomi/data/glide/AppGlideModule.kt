@@ -9,7 +9,8 @@ import com.bumptech.glide.load.model.GlideUrl
 import com.bumptech.glide.module.GlideModule
 import eu.kanade.tachiyomi.data.database.models.Manga
 import eu.kanade.tachiyomi.data.network.NetworkHelper
-import uy.kohesive.injekt.injectLazy
+import uy.kohesive.injekt.Injekt
+import uy.kohesive.injekt.api.get
 import java.io.InputStream
 
 /**
@@ -17,16 +18,15 @@ import java.io.InputStream
  */
 class AppGlideModule : GlideModule {
 
-    val networkHelper: NetworkHelper by injectLazy()
-
     override fun applyOptions(context: Context, builder: GlideBuilder) {
         // Set the cache size of Glide to 15 MiB
         builder.setDiskCache(InternalCacheDiskCacheFactory(context, 15 * 1024 * 1024))
     }
 
     override fun registerComponents(context: Context, glide: Glide) {
-        glide.register(GlideUrl::class.java, InputStream::class.java,
-                OkHttpUrlLoader.Factory(networkHelper.client))
+        val networkFactory = OkHttpUrlLoader.Factory(Injekt.get<NetworkHelper>().client)
+
+        glide.register(GlideUrl::class.java, InputStream::class.java, networkFactory)
         glide.register(Manga::class.java, InputStream::class.java, MangaModelLoader.Factory())
     }
 }
