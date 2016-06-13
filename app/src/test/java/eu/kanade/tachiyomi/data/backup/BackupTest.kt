@@ -488,7 +488,7 @@ class BackupTest {
     }
 
     private fun createCategory(name: String): Category {
-        val c = Category()
+        val c = CategoryImpl()
         c.name = name
         return c
     }

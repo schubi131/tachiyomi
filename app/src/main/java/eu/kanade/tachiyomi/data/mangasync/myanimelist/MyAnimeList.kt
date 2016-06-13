@@ -98,7 +98,7 @@ class MyAnimeList(private val context: Context, id: Int) : MangaSyncService(cont
                 .filter { it.select("type").text() != "Novel" }
                 .map {
                     MangaSync.create(this).apply {
-                        title = it.selectText("title")
+                        title = it.selectText("title")!!
                         remote_id = it.selectInt("id")
                         total_chapters = it.selectInt("chapters")
                     }
@@ -115,7 +115,7 @@ class MyAnimeList(private val context: Context, id: Int) : MangaSyncService(cont
                 .flatMap { Observable.from(it.select("manga")) }
                 .map {
                     MangaSync.create(this).apply {
-                        title = it.selectText("series_title")
+                        title = it.selectText("series_title")!!
                         remote_id = it.selectInt("series_mangadb_id")
                         last_chapter_read = it.selectInt("my_read_chapters")
                         status = it.selectInt("my_status")

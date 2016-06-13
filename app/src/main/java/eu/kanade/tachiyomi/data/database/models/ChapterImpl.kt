@@ -26,9 +26,9 @@ class ChapterImpl : Chapter {
         if (this === other) return true
         if (other == null || javaClass != other.javaClass) return false
 
-        val chapter = other as Chapter?
+        val chapter = other as Chapter
 
-        return url == chapter!!.url
+        return url == chapter.url
 
     }
 

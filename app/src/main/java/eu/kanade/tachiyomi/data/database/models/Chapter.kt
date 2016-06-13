@@ -29,10 +29,8 @@ interface Chapter : Serializable {
 
     companion object {
 
-        fun create(): Chapter {
-            val chapter = ChapterImpl()
-            chapter.chapter_number = -1f
-            return chapter
+        fun create(): Chapter = ChapterImpl().apply {
+            chapter_number = -1f
         }
     }
 }

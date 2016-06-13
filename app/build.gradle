@@ -120,6 +120,7 @@ dependencies {
 
     // JSON
     compile 'com.google.code.gson:gson:2.6.2'
+    compile 'com.github.salomonbrys.kotson:kotson:2.2.1'
 
     // YAML
     compile 'org.yaml:snakeyaml:1.17'

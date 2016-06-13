@@ -37,8 +37,8 @@ class RecentlyReadHolder(view: View, private val adapter: RecentlyReadAdapter)
      */
     fun onSetValues(item: MangaChapterHistory) {
         // Retrieve objects
-        val manga = item.mangaChapter.manga
-        val chapter = item.mangaChapter.chapter
+        val manga = item.manga
+        val chapter = item.chapter
         val history = item.history
 
         // Set manga title

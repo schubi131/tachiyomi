@@ -2,7 +2,7 @@ package eu.kanade.tachiyomi
 
 import android.os.Build
 import eu.kanade.tachiyomi.data.database.DatabaseHelper
-import eu.kanade.tachiyomi.data.database.models.Category
+import eu.kanade.tachiyomi.data.database.models.CategoryImpl
 import eu.kanade.tachiyomi.data.database.models.Manga
 import eu.kanade.tachiyomi.data.database.models.MangaCategory
 import org.assertj.core.api.Assertions.assertThat
@@ -101,7 +101,7 @@ class CategoryTest {
     }
 
     private fun createCategory(name: String) {
-        val c = Category()
+        val c = CategoryImpl()
         c.name = name
         db.insertCategory(c).executeAsBlocking()
     }
