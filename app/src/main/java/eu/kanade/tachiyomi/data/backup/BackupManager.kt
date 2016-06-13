@@ -224,7 +224,7 @@ class BackupManager(private val db: DatabaseHelper) {
      * @param jsonMangas the mangas and its related data (chapters, sync, categories) from the json.
      */
     private fun restoreMangas(jsonMangas: JsonArray) {
-        val chapterToken = object : TypeToken<List<Chapter>>() {}.type
+        val chapterToken = object : TypeToken<List<ChapterImpl>>() {}.type
         val mangaSyncToken = object : TypeToken<List<MangaSync>>() {}.type
         val categoriesNamesToken = object : TypeToken<List<String>>() {}.type
 

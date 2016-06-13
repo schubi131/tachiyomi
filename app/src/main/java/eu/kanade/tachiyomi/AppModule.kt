@@ -1,5 +1,7 @@
 package eu.kanade.tachiyomi
 
+import android.app.Application
+import com.google.gson.Gson
 import eu.kanade.tachiyomi.data.cache.ChapterCache
 import eu.kanade.tachiyomi.data.cache.CoverCache
 import eu.kanade.tachiyomi.data.database.DatabaseHelper
@@ -12,7 +14,7 @@ import uy.kohesive.injekt.api.InjektModule
 import uy.kohesive.injekt.api.InjektRegistrar
 import uy.kohesive.injekt.api.addSingletonFactory
 
-class AppModule(val app: App) : InjektModule {
+class AppModule(val app: Application) : InjektModule {
 
     override fun InjektRegistrar.registerInjectables() {
 
@@ -31,6 +33,8 @@ class AppModule(val app: App) : InjektModule {
             addSingletonFactory { DownloadManager(app) }
 
             addSingletonFactory { MangaSyncManager(app) }
+
+            addSingletonFactory { Gson() }
 
     }
 

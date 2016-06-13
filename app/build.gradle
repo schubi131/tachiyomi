@@ -178,7 +178,6 @@ dependencies {
         exclude group: 'org.apache.httpcomponents', module: 'httpclient'
     }
 
-    kaptTest "com.google.dagger:dagger-compiler:$DAGGER_VERSION"
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
 }
 
