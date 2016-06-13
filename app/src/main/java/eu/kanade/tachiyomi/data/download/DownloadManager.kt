@@ -16,10 +16,7 @@ import eu.kanade.tachiyomi.data.source.Source
 import eu.kanade.tachiyomi.data.source.SourceManager
 import eu.kanade.tachiyomi.data.source.model.Page
 import eu.kanade.tachiyomi.data.source.online.OnlineSource
-import eu.kanade.tachiyomi.util.DiskUtils
-import eu.kanade.tachiyomi.util.DynamicConcurrentMergeOperator
-import eu.kanade.tachiyomi.util.UrlUtil
-import eu.kanade.tachiyomi.util.saveImageTo
+import eu.kanade.tachiyomi.util.*
 import rx.Observable
 import rx.Subscription
 import rx.android.schedulers.AndroidSchedulers
@@ -32,7 +29,6 @@ import uy.kohesive.injekt.api.get
 import java.io.File
 import java.io.FileReader
 import java.util.*
-import java.util.concurrent.TimeUnit
 
 class DownloadManager(
         private val context: Context,
@@ -276,10 +272,8 @@ class DownloadManager(
                     }
                     page
                 }
-                .retryWhen {
-                    it.zipWith(Observable.range(1, 3)) { errors, retries -> retries }
-                            .flatMap { retries -> Observable.timer((retries * 2).toLong(), TimeUnit.SECONDS) }
-                }
+                // Retry 3 times, waiting 2, 4 and 8 seconds between attempts.
+                .retryWhen(RetryWithDelay(3, { (2 shl it - 1) * 1000 }))
     }
 
     // Public method to get the image from the filesystem. It does NOT provide any way to download the image

@@ -393,8 +393,9 @@ class ReaderPresenter : BasePresenter<ReaderActivity>() {
      * @param chapter chapter that is selected
      * @param manga manga that belongs to chapter
      */
-    fun deleteChapter(chapter: Chapter, manga: Manga) {
-        val source = sourceManager.get(manga.source)!!
+    fun deleteChapter(chapter: ReaderChapter, manga: Manga) {
+        chapter.isDownloaded = false
+        chapter.pages?.forEach { it.status == Page.QUEUE }
         downloadManager.deleteChapter(source, manga, chapter)
     }
 
