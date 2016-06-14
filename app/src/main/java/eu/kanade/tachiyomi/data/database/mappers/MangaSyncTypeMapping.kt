@@ -55,7 +55,7 @@ class MangaSyncPutResolver : DefaultPutResolver<MangaSync>() {
 
 class MangaSyncGetResolver : DefaultGetResolver<MangaSync>() {
 
-    override fun mapFromCursor(cursor: Cursor) = MangaSyncImpl().apply {
+    override fun mapFromCursor(cursor: Cursor): MangaSync = MangaSyncImpl().apply {
         id = cursor.getLong(cursor.getColumnIndex(COL_ID))
         manga_id = cursor.getLong(cursor.getColumnIndex(COL_MANGA_ID))
         sync_id = cursor.getInt(cursor.getColumnIndex(COL_SYNC_ID))

@@ -30,7 +30,7 @@ class Mintmanga(context: Context, override val id: Int) : ParsedOnlineSource(con
 
     override fun popularMangaFromElement(element: Element, manga: Manga) {
         element.select("h3 > a").first().let {
-            manga.setUrl(it.attr("href"))
+            manga.setUrlWithoutDomain(it.attr("href"))
             manga.title = it.attr("title")
         }
     }

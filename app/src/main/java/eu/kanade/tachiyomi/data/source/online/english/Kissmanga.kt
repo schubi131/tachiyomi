@@ -35,7 +35,7 @@ class Kissmanga(context: Context, override val id: Int) : ParsedOnlineSource(con
 
     override fun popularMangaFromElement(element: Element, manga: Manga) {
         element.select("td a:eq(0)").first().let {
-            manga.setUrl(it.attr("href"))
+            manga.setUrlWithoutDomain(it.attr("href"))
             manga.title = it.text()
         }
     }

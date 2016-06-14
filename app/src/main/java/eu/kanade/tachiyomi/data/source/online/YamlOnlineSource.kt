@@ -54,10 +54,9 @@ class YamlOnlineSource(context: Context, mappings: Map<*, *>) : OnlineSource(con
     override fun popularMangaParse(response: Response, page: MangasPage) {
         val document = Jsoup.parse(response.body().string())
         for (element in document.select(map.popular.manga_css)) {
-            Manga().apply {
-                source = this@YamlOnlineSource.id
+            Manga.create(id).apply {
                 title = element.text()
-                setUrl(element.attr("href"))
+                setUrlWithoutDomain(element.attr("href"))
                 page.mangas.add(this)
             }
         }
@@ -84,10 +83,9 @@ class YamlOnlineSource(context: Context, mappings: Map<*, *>) : OnlineSource(con
     override fun searchMangaParse(response: Response, page: MangasPage, query: String) {
         val document = Jsoup.parse(response.body().string())
         for (element in document.select(map.search.manga_css)) {
-            Manga().apply {
-                source = this@YamlOnlineSource.id
+            Manga.create(id).apply {
                 title = element.text()
-                setUrl(element.attr("href"))
+                setUrlWithoutDomain(element.attr("href"))
                 page.mangas.add(this)
             }
         }

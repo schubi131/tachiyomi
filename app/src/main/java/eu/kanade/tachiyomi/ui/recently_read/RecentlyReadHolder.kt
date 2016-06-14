@@ -71,7 +71,7 @@ class RecentlyReadHolder(view: View, private val adapter: RecentlyReadAdapter)
                     .onPositive { materialDialog, dialogAction ->
                         // Check if user wants all chapters reset
                         if (materialDialog.customView?.removeAll?.isChecked as Boolean) {
-                            adapter.fragment.removeAllFromHistory(manga.id)
+                            adapter.fragment.removeAllFromHistory(manga.id!!)
                         } else {
                             adapter.fragment.removeFromHistory(history)
                         }

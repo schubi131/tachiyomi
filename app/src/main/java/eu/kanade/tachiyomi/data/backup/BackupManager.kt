@@ -225,7 +225,7 @@ class BackupManager(private val db: DatabaseHelper) {
         for (backupManga in jsonMangas) {
             // Map every entry to objects
             val element = backupManga.asJsonObject
-            val manga = gson.fromJson(element.get(MANGA), Manga::class.java)
+            val manga = gson.fromJson(element.get(MANGA), MangaImpl::class.java)
             val chapters = gson.fromJson<List<ChapterImpl>>(element.get(CHAPTERS) ?: JsonArray())
             val sync = gson.fromJson<List<MangaSyncImpl>>(element.get(MANGA_SYNC) ?: JsonArray())
             val categories = gson.fromJson<List<String>>(element.get(CATEGORIES) ?: JsonArray())
@@ -334,7 +334,7 @@ class BackupManager(private val db: DatabaseHelper) {
     private fun restoreSyncForManga(manga: Manga, sync: List<MangaSync>) {
         // Fix foreign keys with the current manga id
         for (mangaSync in sync) {
-            mangaSync.manga_id = manga.id
+            mangaSync.manga_id = manga.id!!
         }
 
         val dbSyncs = db.getMangasSync(manga).executeAsBlocking()

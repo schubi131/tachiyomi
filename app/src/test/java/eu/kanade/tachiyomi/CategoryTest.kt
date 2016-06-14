@@ -49,7 +49,7 @@ class CategoryTest {
 
     @Test
     fun testHasCorrectFavorites() {
-        val m = Manga()
+        val m = Manga.create(0)
         m.title = "title"
         m.author = ""
         m.artist = ""
@@ -88,7 +88,7 @@ class CategoryTest {
     }
 
     private fun createManga(title: String) {
-        val m = Manga()
+        val m = Manga.create(0)
         m.title = title
         m.author = ""
         m.artist = ""

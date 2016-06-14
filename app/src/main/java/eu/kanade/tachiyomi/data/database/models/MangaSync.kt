@@ -1,6 +1,5 @@
 package eu.kanade.tachiyomi.data.database.models
 
-import eu.kanade.tachiyomi.data.mangasync.MangaSyncService
 import java.io.Serializable
 
 interface MangaSync : Serializable {
@@ -33,10 +32,8 @@ interface MangaSync : Serializable {
 
     companion object {
 
-        fun create(): MangaSync = MangaSyncImpl()
-
-        fun create(service: MangaSyncService): MangaSync = create().apply {
-            sync_id = service.id
+        fun create(serviceId: Int): MangaSync = MangaSyncImpl().apply {
+            sync_id = serviceId
         }
     }
 

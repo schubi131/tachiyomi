@@ -510,7 +510,7 @@ class BackupTest {
     }
 
     private fun createManga(title: String): Manga {
-        val m = Manga()
+        val m = Manga.create(1)
         m.title = title
         m.author = ""
         m.artist = ""
@@ -519,7 +519,6 @@ class BackupTest {
         m.description = "long description"
         m.url = "url to manga"
         m.favorite = true
-        m.source = 1
         return m
     }
 
@@ -548,9 +547,8 @@ class BackupTest {
     }
 
     private fun createMangaSync(manga: Manga, syncId: Int): MangaSync {
-        val m = MangaSync.create()
-        m.manga_id = manga.id
-        m.sync_id = syncId
+        val m = MangaSync.create(syncId)
+        m.manga_id = manga.id!!
         m.title = "title"
         return m
     }

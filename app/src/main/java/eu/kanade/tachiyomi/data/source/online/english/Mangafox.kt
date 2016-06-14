@@ -29,7 +29,7 @@ class Mangafox(context: Context, override val id: Int) : ParsedOnlineSource(cont
 
     override fun popularMangaFromElement(element: Element, manga: Manga) {
         element.select("a.title").first().let {
-            manga.setUrl(it.attr("href"))
+            manga.setUrlWithoutDomain(it.attr("href"))
             manga.title = it.text()
         }
     }
@@ -43,7 +43,7 @@ class Mangafox(context: Context, override val id: Int) : ParsedOnlineSource(cont
 
     override fun searchMangaFromElement(element: Element, manga: Manga) {
         element.select("a.series_preview").first().let {
-            manga.setUrl(it.attr("href"))
+            manga.setUrlWithoutDomain(it.attr("href"))
             manga.title = it.text()
         }
     }

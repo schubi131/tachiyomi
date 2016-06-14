@@ -57,7 +57,7 @@ class ChapterPutResolver : DefaultPutResolver<Chapter>() {
 
 class ChapterGetResolver : DefaultGetResolver<Chapter>() {
 
-    override fun mapFromCursor(cursor: Cursor) = ChapterImpl().apply {
+    override fun mapFromCursor(cursor: Cursor): Chapter = ChapterImpl().apply {
         id = cursor.getLong(cursor.getColumnIndex(COL_ID))
         manga_id = cursor.getLong(cursor.getColumnIndex(COL_MANGA_ID))
         url = cursor.getString(cursor.getColumnIndex(COL_URL))

@@ -12,7 +12,7 @@ class MangaCategory {
 
         fun create(manga: Manga, category: Category): MangaCategory {
             val mc = MangaCategory()
-            mc.manga_id = manga.id
+            mc.manga_id = manga.id!!
             mc.category_id = category.id!!
             return mc
         }

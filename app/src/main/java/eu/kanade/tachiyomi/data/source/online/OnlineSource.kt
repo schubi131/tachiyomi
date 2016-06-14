@@ -442,6 +442,10 @@ abstract class OnlineSource(context: Context) : Source {
         this.url = UrlUtil.getPath(url)
     }
 
+    fun Manga.setUrlWithoutDomain(url: String) {
+        this.url = UrlUtil.getPath(url)
+    }
+
 
     // Overridable method to allow custom parsing.
     open fun parseChapterNumber(chapter: Chapter) {

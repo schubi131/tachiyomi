@@ -83,7 +83,7 @@ class MangaModelLoader(context: Context) : StreamModelLoader<Manga> {
         // Obtain the request url and the file for this url from the LRU cache, or calculate it
         // and add them to the cache.
         val (glideUrl, file) = modelCache.get(url, width, height) ?:
-            Pair(GlideUrl(url, getHeaders(manga)), coverCache.getCoverFile(url)).apply {
+            Pair(GlideUrl(url, getHeaders(manga)), coverCache.getCoverFile(url!!)).apply {
                 modelCache.put(url, width, height, this)
             }
 

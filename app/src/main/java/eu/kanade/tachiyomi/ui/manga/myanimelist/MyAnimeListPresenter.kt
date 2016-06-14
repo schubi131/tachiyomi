@@ -124,7 +124,7 @@ class MyAnimeListPresenter : BasePresenter<MyAnimeListFragment>() {
 
     fun registerManga(sync: MangaSync?) {
         if (sync != null) {
-            sync.manga_id = manga.id
+            sync.manga_id = manga.id!!
             add(myAnimeList.bind(sync)
                     .flatMap { db.insertMangaSync(sync).asRxObservable() }
                     .subscribeOn(Schedulers.io())
